@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
@@ -15,12 +16,22 @@ public class DetailActivity extends AppCompatActivity {
     public static final String EXTRA_POSITION = "extra_position";
     private static final int DEFAULT_POSITION = -1;
 
+    private TextView alsoKnownAsTextView;
+    private TextView ingredientsTextView;
+    private TextView placeOfOriginTextView;
+    private TextView descriptionTextView;
+    private ImageView ingredientsImageView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
-        ImageView ingredientsIv = findViewById(R.id.image_iv);
+        ingredientsImageView = findViewById(R.id.image_iv);
+        alsoKnownAsTextView = findViewById(R.id.also_known_tv);
+        ingredientsTextView = findViewById(R.id.ingredients_tv);
+        placeOfOriginTextView = findViewById(R.id.origin_tv);
+        descriptionTextView = findViewById(R.id.description_tv);
 
         Intent intent = getIntent();
         if (intent == null) {
@@ -34,8 +45,8 @@ public class DetailActivity extends AppCompatActivity {
             return;
         }
 
-        String[] sandwiches = getResources().getStringArray(R.array.sandwich_details);
-        String json = sandwiches[position];
+        String[] sandwichesDetails = getResources().getStringArray(R.array.sandwich_details);
+        String json = sandwichesDetails[position];
         Sandwich sandwich = JsonUtils.parseSandwichJson(json);
         if (sandwich == null) {
             // Sandwich data unavailable
@@ -43,12 +54,10 @@ public class DetailActivity extends AppCompatActivity {
             return;
         }
 
-        populateUI();
-        Picasso.with(this)
-                .load(sandwich.getImage())
-                .into(ingredientsIv);
-
         setTitle(sandwich.getMainName());
+
+        populateUI(sandwich);
+
     }
 
     private void closeOnError() {
@@ -56,7 +65,30 @@ public class DetailActivity extends AppCompatActivity {
         Toast.makeText(this, R.string.detail_error_message, Toast.LENGTH_SHORT).show();
     }
 
-    private void populateUI() {
+    private void populateUI(Sandwich sandwich) {
+        Picasso.with(this)
+                .load(sandwich.getImage())
+                .into(ingredientsImageView);
+
+        int akaSize = sandwich.getAlsoKnownAs().size();
+        for (int i = 0; i< akaSize; i++) {
+            alsoKnownAsTextView.append(sandwich.getAlsoKnownAs().get(i));
+            if (i != akaSize-1) {
+                alsoKnownAsTextView.append("\n");
+            }
+        }
+
+        int ingredientsSize = sandwich.getIngredients().size();
+        for (int i = 0; i<ingredientsSize; i++) {
+            ingredientsTextView.append(sandwich.getIngredients().get(i));
+            if (i != ingredientsSize-1) {
+                ingredientsTextView.append(", ");
+            }
+        }
+
+        placeOfOriginTextView.setText(sandwich.getPlaceOfOrigin());
+
+        descriptionTextView.setText(sandwich.getDescription());
 
     }
 }
