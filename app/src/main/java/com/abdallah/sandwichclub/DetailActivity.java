@@ -3,7 +3,10 @@ package com.abdallah.sandwichclub;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -12,6 +15,8 @@ import com.abdallah.sandwichclub.model.Sandwich;
 import com.abdallah.sandwichclub.utils.JsonUtils;
 
 public class DetailActivity extends AppCompatActivity {
+
+    private final static String TAG = DetailActivity.class.getSimpleName();
 
     public static final String EXTRA_POSITION = "extra_position";
     private static final int DEFAULT_POSITION = -1;
@@ -27,11 +32,7 @@ public class DetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail);
 
-        ingredientsImageView = findViewById(R.id.image_iv);
-        alsoKnownAsTextView = findViewById(R.id.also_known_tv);
-        ingredientsTextView = findViewById(R.id.ingredients_tv);
-        placeOfOriginTextView = findViewById(R.id.origin_tv);
-        descriptionTextView = findViewById(R.id.description_tv);
+        bindViews();
 
         Intent intent = getIntent();
         if (intent == null) {
@@ -54,10 +55,19 @@ public class DetailActivity extends AppCompatActivity {
             return;
         }
 
-        setTitle(sandwich.getMainName());
-
         populateUI(sandwich);
 
+    }
+
+    /**
+     * Bind the views by calling findViewById for each of them
+     */
+    private void bindViews() {
+        ingredientsImageView = findViewById(R.id.image_iv);
+        alsoKnownAsTextView = findViewById(R.id.also_known_tv);
+        ingredientsTextView = findViewById(R.id.ingredients_tv);
+        placeOfOriginTextView = findViewById(R.id.origin_tv);
+        descriptionTextView = findViewById(R.id.description_tv);
     }
 
     private void closeOnError() {
@@ -66,29 +76,60 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     private void populateUI(Sandwich sandwich) {
-        Picasso.with(this)
-                .load(sandwich.getImage())
-                .into(ingredientsImageView);
+        setTitle(sandwich.getMainName());
+
+        if (!sandwich.getImage().equals("")){
+            Picasso.with(this)
+                    .load(sandwich.getImage())
+                    .into(ingredientsImageView);
+        }
+        else {
+            ingredientsImageView.setVisibility(View.GONE);
+        }
 
         int akaSize = sandwich.getAlsoKnownAs().size();
-        for (int i = 0; i< akaSize; i++) {
-            alsoKnownAsTextView.append(sandwich.getAlsoKnownAs().get(i));
-            if (i != akaSize-1) {
-                alsoKnownAsTextView.append("\n");
+        if (akaSize != 0) {
+            for (int i = 0; i< akaSize; i++) {
+                alsoKnownAsTextView.append(sandwich.getAlsoKnownAs().get(i));
+                if (i != akaSize-1) {
+                    alsoKnownAsTextView.append("\n");
+                }
             }
+        }
+        else {
+            LinearLayout alsoKnownAsLinearLayout = findViewById(R.id.also_known_linear_layout);
+            alsoKnownAsLinearLayout.setVisibility(View.GONE);
         }
 
         int ingredientsSize = sandwich.getIngredients().size();
-        for (int i = 0; i<ingredientsSize; i++) {
-            ingredientsTextView.append(sandwich.getIngredients().get(i));
-            if (i != ingredientsSize-1) {
-                ingredientsTextView.append(", ");
+        if (ingredientsSize != 0) {
+            for (int i = 0; i<ingredientsSize; i++) {
+                ingredientsTextView.append(sandwich.getIngredients().get(i));
+                if (i != ingredientsSize-1) {
+                    ingredientsTextView.append(", ");
+                }
             }
         }
+        else {
+            LinearLayout ingredientsLinearLayout = findViewById(R.id.ingredients_linear_layout);
+            ingredientsLinearLayout.setVisibility(View.GONE);
+        }
 
-        placeOfOriginTextView.setText(sandwich.getPlaceOfOrigin());
+        if (!sandwich.getPlaceOfOrigin().equals("")) {
+            placeOfOriginTextView.setText(sandwich.getPlaceOfOrigin());
+        }
+        else {
+            LinearLayout originLinearLayout = findViewById(R.id.origin_linear_layout);
+            originLinearLayout.setVisibility(View.GONE);
+        }
 
-        descriptionTextView.setText(sandwich.getDescription());
+        if (!sandwich.getDescription().equals("")) {
+            descriptionTextView.setText(sandwich.getDescription());
+        }
+        else {
+            LinearLayout descriptionLinearLayout = findViewById(R.id.description_linear_layout);
+            descriptionLinearLayout.setVisibility(View.GONE);
+        }
 
     }
 }
