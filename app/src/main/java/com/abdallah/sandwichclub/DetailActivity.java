@@ -79,7 +79,7 @@ public class DetailActivity extends AppCompatActivity {
         setTitle(sandwich.getMainName());
 
         if (!sandwich.getImage().equals("")){
-            Picasso.with(this)
+            Picasso.get()
                     .load(sandwich.getImage())
                     .into(ingredientsImageView);
         }
